@@ -28,7 +28,8 @@ export const setupPageHtml = `<!doctype html>
         <h2 id='vk-title'>Подключение VK</h2>
         <div id='vk-wizard' hidden>
           <ol>
-            <li>В управлении сообществом откройте «Работа с API» и включите Long Poll API.</li>
+            <li>Откройте «Сообщения → Настройки для бота» и включите «Возможности ботов».</li>
+            <li>В разделе «Работа с API» включите Long Poll API.</li>
             <li>В событиях Long Poll отметьте «Входящие сообщения».</li>
             <li>Создайте ключ доступа сообщества с правом работы с сообщениями.</li>
           </ol>
@@ -37,6 +38,15 @@ export const setupPageHtml = `<!doctype html>
           <button id='vk-connect'>Подключить VK</button>
         </div>
         <p id='vk-status'>Проверяем состояние…</p>
+      </section>
+      <section aria-labelledby='content-title'>
+        <h2 id='content-title'>Информация для клиентов</h2>
+        <p>Эти ответы одинаково отображаются в Telegram и VK. Пустой раздел будет отмечен как не заполненный.</p>
+        <label>Расписание <textarea id='content-schedule' rows='5'></textarea></label>
+        <label>Цены <textarea id='content-prices' rows='5'></textarea></label>
+        <label>Адрес <textarea id='content-address' rows='3'></textarea></label>
+        <button id='save-content'>Сохранить информацию</button>
+        <p id='content-status' class='muted'>Загружаем сохранённые значения…</p>
       </section>
       <section aria-labelledby='delivery-title'>
         <h2 id='delivery-title'>Доставка ответов</h2>
@@ -85,6 +95,12 @@ input[type='password'], input[type='text'] {
   width: 100%;
   padding: 10px;
 }
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 10px;
+  resize: vertical;
+}
 button {
   padding: 10px 14px;
   cursor: pointer;
@@ -120,6 +136,10 @@ export const setupPageScript = `(() => {
   const vkStatus = query('#vk-status');
   const vkToken = query('#vk-token');
   const vkCommunity = query('#vk-community');
+  const contentSchedule = query('#content-schedule');
+  const contentPrices = query('#content-prices');
+  const contentAddress = query('#content-address');
+  const contentStatus = query('#content-status');
 
   const request = async (url, data) => {
     const response = await fetch(url, {
@@ -250,6 +270,24 @@ export const setupPageScript = `(() => {
   };
 
   query('#refresh-deliveries').onclick = refreshDeliveries;
+  query('#save-content').onclick = async (event) => {
+    const button = event.currentTarget;
+    button.disabled = true;
+    contentStatus.textContent = 'Сохраняем…';
+    try {
+      await request('/api/setup/content', {
+        address: contentAddress.value,
+        prices: contentPrices.value,
+        schedule: contentSchedule.value,
+      });
+      contentStatus.textContent =
+        'Сохранено. Новые ответы уже доступны в Telegram и VK.';
+    } catch (error) {
+      contentStatus.textContent = error.message;
+    } finally {
+      button.disabled = false;
+    }
+  };
   query('#create-backup').onclick = async (event) => {
     const button = event.currentTarget;
     button.disabled = true;
@@ -281,5 +319,16 @@ export const setupPageScript = `(() => {
     })
     .catch((error) => showStatus(error.message));
   void refreshDeliveries();
+  request('/api/setup/content')
+    .then((content) => {
+      contentSchedule.value = content.schedule ?? '';
+      contentPrices.value = content.prices ?? '';
+      contentAddress.value = content.address ?? '';
+      contentStatus.textContent = 'Изменения применяются без перезапуска.';
+    })
+    .catch(() => {
+      contentStatus.textContent =
+        'Не удалось загрузить информацию. Обновите страницу.';
+    });
   window.setInterval(refreshDeliveries, 10000);
 })();`;
