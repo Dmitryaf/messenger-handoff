@@ -45,6 +45,10 @@ export const setupPageHtml = `<!doctype html>
         <label>Расписание <textarea id='content-schedule' rows='5'></textarea></label>
         <label>Цены <textarea id='content-prices' rows='5'></textarea></label>
         <label>Адрес <textarea id='content-address' rows='3'></textarea></label>
+        <h3>Дополнительные кнопки</h3>
+        <p class='muted'>Можно добавить до шести собственных разделов, например «Первое занятие» или «Что взять с собой».</p>
+        <div id='custom-sections'></div>
+        <button id='add-custom-section' type='button'>Добавить кнопку</button>
         <button id='save-content'>Сохранить информацию</button>
         <p id='content-status' class='muted'>Загружаем сохранённые значения…</p>
       </section>
@@ -117,6 +121,15 @@ button {
 #delivery-failures button {
   margin-left: 8px;
 }
+.custom-section {
+  margin: 12px 0;
+  padding: 12px;
+  border: 1px solid #d9dee7;
+  border-radius: 8px;
+}
+.custom-section button {
+  margin-bottom: 8px;
+}
 .muted {
   color: #5f6877;
 }
@@ -140,6 +153,8 @@ export const setupPageScript = `(() => {
   const contentPrices = query('#content-prices');
   const contentAddress = query('#content-address');
   const contentStatus = query('#content-status');
+  const customSections = query('#custom-sections');
+  const addCustomSection = query('#add-custom-section');
 
   const request = async (url, data) => {
     const response = await fetch(url, {
@@ -154,6 +169,40 @@ export const setupPageScript = `(() => {
 
   const showStatus = (message) => {
     status.textContent = message;
+  };
+
+  const createCustomSection = (section = {}) => {
+    const container = document.createElement('div');
+    container.className = 'custom-section';
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.textContent = 'Удалить кнопку';
+    const label = document.createElement('label');
+    label.textContent = 'Название кнопки';
+    const labelInput = document.createElement('input');
+    labelInput.type = 'text';
+    labelInput.maxLength = 40;
+    labelInput.value = section.label ?? '';
+    label.append(labelInput);
+    const textLabel = document.createElement('label');
+    textLabel.textContent = 'Ответ';
+    const textInput = document.createElement('textarea');
+    textInput.rows = 4;
+    textInput.maxLength = 4000;
+    textInput.value = section.text ?? '';
+    textLabel.append(textInput);
+    remove.onclick = () => {
+      container.remove();
+      addCustomSection.disabled = false;
+    };
+    container.append(remove, label, textLabel);
+    return container;
+  };
+
+  addCustomSection.onclick = () => {
+    if (customSections.children.length >= 6) return;
+    customSections.append(createCustomSection());
+    addCustomSection.disabled = customSections.children.length >= 6;
   };
 
   query('#discover').onclick = async () => {
@@ -277,6 +326,10 @@ export const setupPageScript = `(() => {
     try {
       await request('/api/setup/content', {
         address: contentAddress.value,
+        customSections: [...customSections.children].map((container) => ({
+          label: container.querySelector('input').value,
+          text: container.querySelector('textarea').value,
+        })),
         prices: contentPrices.value,
         schedule: contentSchedule.value,
       });
@@ -324,6 +377,10 @@ export const setupPageScript = `(() => {
       contentSchedule.value = content.schedule ?? '';
       contentPrices.value = content.prices ?? '';
       contentAddress.value = content.address ?? '';
+      customSections.replaceChildren(
+        ...(content.customSections ?? []).map(createCustomSection),
+      );
+      addCustomSection.disabled = customSections.children.length >= 6;
       contentStatus.textContent = 'Изменения применяются без перезапуска.';
     })
     .catch(() => {
