@@ -184,6 +184,15 @@ export const setupPageScript = `(() => {
     labelInput.maxLength = 40;
     labelInput.value = section.label ?? '';
     label.append(labelInput);
+    const formatLabel = document.createElement('label');
+    formatLabel.textContent = 'Формат ответа';
+    const formatInput = document.createElement('select');
+    formatInput.append(
+      new Option('Обычный текст', 'plain'),
+      new Option('Вопросы и ответы', 'faq'),
+    );
+    formatInput.value = section.format === 'faq' ? 'faq' : 'plain';
+    formatLabel.append(formatInput);
     const textLabel = document.createElement('label');
     textLabel.textContent = 'Ответ';
     const textInput = document.createElement('textarea');
@@ -195,7 +204,7 @@ export const setupPageScript = `(() => {
       container.remove();
       addCustomSection.disabled = false;
     };
-    container.append(remove, label, textLabel);
+    container.append(remove, label, formatLabel, textLabel);
     return container;
   };
 
@@ -327,6 +336,9 @@ export const setupPageScript = `(() => {
       await request('/api/setup/content', {
         address: contentAddress.value,
         customSections: [...customSections.children].map((container) => ({
+          ...(container.querySelector('select').value === 'faq'
+            ? { format: 'faq' }
+            : {}),
           label: container.querySelector('input').value,
           text: container.querySelector('textarea').value,
         })),
