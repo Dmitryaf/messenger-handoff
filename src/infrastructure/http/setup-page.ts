@@ -46,7 +46,7 @@ export const setupPageHtml = `<!doctype html>
         <label>Цены <textarea id='content-prices' rows='5'></textarea></label>
         <label>Адрес <textarea id='content-address' rows='3'></textarea></label>
         <h3>Дополнительные кнопки</h3>
-        <p class='muted'>Можно добавить до шести собственных разделов, например «Первое занятие» или «Что взять с собой».</p>
+        <p class='muted'>Можно добавить до шести собственных разделов. Частые вопросы редактируются на странице /manage.</p>
         <div id='custom-sections'></div>
         <button id='add-custom-section' type='button'>Добавить кнопку</button>
         <button id='save-content'>Сохранить информацию</button>
@@ -155,6 +155,7 @@ export const setupPageScript = `(() => {
   const contentStatus = query('#content-status');
   const customSections = query('#custom-sections');
   const addCustomSection = query('#add-custom-section');
+  let currentFaq = [];
 
   const request = async (url, data) => {
     const response = await fetch(url, {
@@ -184,15 +185,7 @@ export const setupPageScript = `(() => {
     labelInput.maxLength = 40;
     labelInput.value = section.label ?? '';
     label.append(labelInput);
-    const formatLabel = document.createElement('label');
-    formatLabel.textContent = 'Формат ответа';
-    const formatInput = document.createElement('select');
-    formatInput.append(
-      new Option('Обычный текст', 'plain'),
-      new Option('Вопросы и ответы', 'faq'),
-    );
-    formatInput.value = section.format === 'faq' ? 'faq' : 'plain';
-    formatLabel.append(formatInput);
+
     const textLabel = document.createElement('label');
     textLabel.textContent = 'Ответ';
     const textInput = document.createElement('textarea');
@@ -204,7 +197,7 @@ export const setupPageScript = `(() => {
       container.remove();
       addCustomSection.disabled = false;
     };
-    container.append(remove, label, formatLabel, textLabel);
+    container.append(remove, label, textLabel);
     return container;
   };
 
@@ -336,12 +329,10 @@ export const setupPageScript = `(() => {
       await request('/api/setup/content', {
         address: contentAddress.value,
         customSections: [...customSections.children].map((container) => ({
-          ...(container.querySelector('select').value === 'faq'
-            ? { format: 'faq' }
-            : {}),
           label: container.querySelector('input').value,
           text: container.querySelector('textarea').value,
         })),
+        faq: currentFaq,
         prices: contentPrices.value,
         schedule: contentSchedule.value,
       });
@@ -389,6 +380,7 @@ export const setupPageScript = `(() => {
       contentSchedule.value = content.schedule ?? '';
       contentPrices.value = content.prices ?? '';
       contentAddress.value = content.address ?? '';
+      currentFaq = content.faq ?? [];
       customSections.replaceChildren(
         ...(content.customSections ?? []).map(createCustomSection),
       );

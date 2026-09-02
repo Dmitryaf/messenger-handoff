@@ -44,8 +44,15 @@ export const managePageHtml = `<!doctype html>
           </section>
 
           <section>
+            <h2>Частые вопросы</h2>
+            <p>Добавляйте вопросы и ответы отдельными карточками. Порядок карточек сохранится в сообщении.</p>
+            <div id='faq-items'></div>
+            <button id='add-faq' class='secondary' type='button'>Добавить вопрос</button>
+          </section>
+
+          <section>
             <h2>Дополнительные кнопки</h2>
-            <p>Добавьте до шести разделов. Для FAQ выберите формат «Вопросы и ответы».</p>
+            <p>Добавьте до шести собственных информационных разделов.</p>
             <div id='custom-sections'></div>
             <button id='add-section' class='secondary' type='button'>Добавить кнопку</button>
           </section>
@@ -160,15 +167,18 @@ header button {
   min-height: 24px;
   margin: 10px 0 0;
 }
+.faq-item,
 .custom-section {
   margin: 14px 0;
   padding: 14px;
   border: 1px solid #d9dee7;
   border-radius: 10px;
 }
+.faq-item h3,
 .custom-section h3 {
   margin-bottom: 0;
 }
+.faq-item .remove,
 .custom-section .remove {
   border-color: #d2a5a5;
   color: #8b2020;
@@ -229,6 +239,8 @@ export const managePageScript = `(() => {
   const schedule = query('#schedule');
   const prices = query('#prices');
   const address = query('#address');
+  const faqItems = query('#faq-items');
+  const addFaq = query('#add-faq');
   const customSections = query('#custom-sections');
   const addSection = query('#add-section');
   const preview = query('#preview');
@@ -259,6 +271,48 @@ export const managePageScript = `(() => {
     password.focus();
   };
 
+  const createFaqItem = (item = {}) => {
+    const container = document.createElement('div');
+    container.className = 'faq-item';
+
+    const title = document.createElement('h3');
+    title.textContent = 'Вопрос и ответ';
+
+    const questionLabel = document.createElement('label');
+    questionLabel.textContent = 'Вопрос';
+    const question = document.createElement('input');
+    question.type = 'text';
+    question.maxLength = 300;
+    question.required = true;
+    question.value = item.question ?? '';
+    questionLabel.append(question);
+
+    const answerLabel = document.createElement('label');
+    answerLabel.textContent = 'Ответ';
+    const answer = document.createElement('textarea');
+    answer.rows = 4;
+    answer.maxLength = 3000;
+    answer.required = true;
+    answer.value = item.answer ?? '';
+    answerLabel.append(answer);
+
+    question.oninput = renderPreview;
+    answer.oninput = renderPreview;
+
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'remove';
+    remove.textContent = 'Удалить вопрос';
+    remove.onclick = () => {
+      container.remove();
+      addFaq.disabled = false;
+      renderPreview();
+    };
+
+    container.append(title, questionLabel, answerLabel, remove);
+    return container;
+  };
+
   const createCustomSection = (section = {}) => {
     const container = document.createElement('div');
     container.className = 'custom-section';
@@ -275,19 +329,8 @@ export const managePageScript = `(() => {
     name.value = section.label ?? '';
     nameLabel.append(name);
 
-    const formatLabel = document.createElement('label');
-    formatLabel.textContent = 'Формат ответа';
-    const format = document.createElement('select');
-    const plain = new Option('Обычный текст', 'plain');
-    const faq = new Option('Вопросы и ответы', 'faq');
-    format.append(plain, faq);
-    format.value = section.format === 'faq' ? 'faq' : 'plain';
-    formatLabel.append(format);
-
     const textLabel = document.createElement('label');
     textLabel.textContent = 'Ответ';
-    const help = document.createElement('p');
-    help.className = 'hint';
     const text = document.createElement('textarea');
     text.rows = 6;
     text.maxLength = 4000;
@@ -295,14 +338,6 @@ export const managePageScript = `(() => {
     text.value = section.text ?? '';
     textLabel.append(text);
 
-    const updateHelp = () => {
-      help.textContent =
-        format.value === 'faq'
-          ? 'Сначала вопрос, со следующей строки ответ. Между парами оставляйте пустую строку.'
-          : 'Свободный текст без обязательного шаблона.';
-      renderPreview();
-    };
-    format.onchange = updateHelp;
     name.oninput = renderPreview;
     text.oninput = renderPreview;
 
@@ -316,22 +351,26 @@ export const managePageScript = `(() => {
       renderPreview();
     };
 
-    container.append(title, nameLabel, formatLabel, textLabel, help, remove);
-    updateHelp();
+    container.append(title, nameLabel, textLabel, remove);
     return container;
   };
+  const readFaqItems = () =>
+    [...faqItems.children].map((container) => {
+      const [question, answer] = container.querySelectorAll('input, textarea');
+      return {
+        answer: answer.value,
+        question: question.value,
+      };
+    });
 
   const readCustomSections = () =>
     [...customSections.children].map((container) => {
-      const fields = container.querySelectorAll('input, select, textarea');
-      const [name, format, text] = fields;
+      const [name, text] = container.querySelectorAll('input, textarea');
       return {
-        ...(format.value === 'faq' ? { format: 'faq' } : {}),
         label: name.value,
         text: text.value,
       };
     });
-
   const listText = (label, value) => {
     const items = value
       .split(/\\r?\\n/)
@@ -342,29 +381,16 @@ export const managePageScript = `(() => {
       : '';
   };
 
-  const faqText = (label, value) => {
-    const items = value
-      .trim()
-      .split(/\\r?\\n\\s*\\r?\\n/)
-      .map((block) => {
-        const [question = '', ...answerLines] = block
-          .split(/\\r?\\n/)
-          .map((line) => line.trim());
-        return {
-          answer: answerLines.filter(Boolean).join('\\n'),
-          question,
-        };
-      })
-      .filter((item) => item.question);
-    return items.length
-      ? label +
-          '\\n\\n' +
-          items
-            .map((item) => '❓ ' + item.question + '\\n' + item.answer)
-            .join('\\n\\n────────\\n\\n')
-      : '';
-  };
-
+  const faqText = (items) =>
+    items.length
+      ? 'Частые вопросы\\n\\n' +
+        items
+          .map(
+            (item) =>
+              '❓ ' + item.question.trim() + '\\n' + item.answer.trim(),
+          )
+          .join('\\n\\n────────\\n\\n')
+      : 'Частые вопросы пока не добавлены. Вы можете задать вопрос преподавателю.';
   const addPreviewCard = (label, text) => {
     if (!text) return;
     const card = document.createElement('article');
@@ -386,12 +412,19 @@ export const managePageScript = `(() => {
       'Адрес',
       address.value.trim() ? 'Адрес\\n\\n' + address.value.trim() : '',
     );
+    addPreviewCard(
+      'Частые вопросы',
+      faqText(
+        readFaqItems().filter(
+          (item) => item.question.trim() && item.answer.trim(),
+        ),
+      ),
+    );
     for (const section of readCustomSections()) {
-      const text =
-        section.format === 'faq'
-          ? faqText(section.label.trim(), section.text)
-          : section.text.trim();
-      addPreviewCard(section.label.trim() || 'Новая кнопка', text);
+      addPreviewCard(
+        section.label.trim() || 'Новая кнопка',
+        section.text.trim(),
+      );
     }
   }
 
@@ -400,6 +433,7 @@ export const managePageScript = `(() => {
     const labels = {
       address: 'адрес',
       customSections: 'дополнительные кнопки',
+      faq: 'частые вопросы',
       prices: 'цены',
       schedule: 'расписание',
     };
@@ -422,6 +456,8 @@ export const managePageScript = `(() => {
     schedule.value = content.schedule ?? '';
     prices.value = content.prices ?? '';
     address.value = content.address ?? '';
+    faqItems.replaceChildren(...(content.faq ?? []).map(createFaqItem));
+    addFaq.disabled = faqItems.children.length >= 20;
     customSections.replaceChildren(
       ...(content.customSections ?? []).map(createCustomSection),
     );
@@ -442,6 +478,12 @@ export const managePageScript = `(() => {
     }
   };
 
+  addFaq.onclick = () => {
+    if (faqItems.children.length >= 20) return;
+    faqItems.append(createFaqItem());
+    addFaq.disabled = faqItems.children.length >= 20;
+    renderPreview();
+  };
   addSection.onclick = () => {
     if (customSections.children.length >= 6) return;
     customSections.append(createCustomSection());
@@ -477,6 +519,7 @@ export const managePageScript = `(() => {
       await request('/api/manage/content', {
         address: address.value,
         customSections: readCustomSections(),
+        faq: readFaqItems(),
         prices: prices.value,
         schedule: schedule.value,
       });
