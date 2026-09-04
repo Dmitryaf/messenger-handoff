@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-const props = defineProps<{ pending: boolean; revision: number }>();
+const props = defineProps<{
+  hasUnsavedChanges: boolean;
+  pending: boolean;
+  revision: number;
+}>();
 const emit = defineEmits<{ restore: [revision: number] }>();
 const confirming = ref(false);
 </script>
@@ -9,6 +13,9 @@ const confirming = ref(false);
 <template>
   <div v-if="confirming" class="restore-confirm">
     <p>Заменить текущую информацию этой версией?</p>
+    <p v-if="hasUnsavedChanges" class="warning-text">
+      Несохранённые изменения будут потеряны.
+    </p>
     <button
       :disabled="pending"
       type="button"

@@ -6,7 +6,11 @@ import {
 } from '@manage/features/restore-content/model/history-format';
 import RestoreAction from '@manage/features/restore-content/ui/RestoreAction.vue';
 
-defineProps<{ changes: ContentChange[]; restoring: boolean }>();
+defineProps<{
+  changes: ContentChange[];
+  hasUnsavedChanges: boolean;
+  restoring: boolean;
+}>();
 defineEmits<{ restore: [revision: number] }>();
 </script>
 
@@ -25,6 +29,7 @@ defineEmits<{ restore: [revision: number] }>();
         <small v-if="index === 0">Текущая версия</small>
         <RestoreAction
           v-else-if="change.revision"
+          :has-unsaved-changes="hasUnsavedChanges"
           :pending="restoring"
           :revision="change.revision"
           @restore="$emit('restore', $event)"

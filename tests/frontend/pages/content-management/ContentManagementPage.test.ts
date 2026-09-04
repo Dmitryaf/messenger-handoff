@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 
-import { flushPromises, mount } from '@vue/test-utils';
+import { flushPromises, mount, type DOMWrapper } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import ContentManagementPage from '@manage/pages/content-management/ui/ContentManagementPage.vue';
@@ -37,11 +37,29 @@ describe('ContentManagementPage', () => {
     const wrapper = mount(ContentManagementPage);
     await flushPromises();
 
-    expect(wrapper.text()).toContain('Как записаться?');
-    expect(wrapper.text()).toContain('Понедельник, 19:00');
+    expect(wrapper.get<HTMLTextAreaElement>('#schedule').element.value).toBe(
+      'Понедельник, 19:00',
+    );
+    expect(wrapper.text()).not.toContain('Как записаться?');
     expect(wrapper.text()).toContain('Все изменения сохранены');
 
+    await clickButton(
+      wrapper.findAll<HTMLButtonElement>('button'),
+      'Частые вопросы',
+    );
+    expect(wrapper.get<HTMLInputElement>('#faq-question-0').element.value).toBe(
+      'Как записаться?',
+    );
+    expect(wrapper.find('#schedule').exists()).toBe(false);
+
+    await clickButton(wrapper.findAll<HTMLButtonElement>('button'), 'Основное');
     await wrapper.get('#schedule').setValue('Вторник, 20:00');
+    await clickButton(
+      wrapper.findAll<HTMLButtonElement>('button'),
+      'Предпросмотр',
+    );
+
+    expect(wrapper.text()).toContain('Вторник, 20:00');
     expect(wrapper.text()).toContain('Есть несохранённые изменения');
   });
 
@@ -79,6 +97,7 @@ describe('ContentManagementPage', () => {
 
     const wrapper = mount(ContentManagementPage);
     await flushPromises();
+    await clickButton(wrapper.findAll<HTMLButtonElement>('button'), 'История');
     const restoreButton = wrapper
       .findAll('button')
       .find((button) => button.text() === 'Восстановить');
@@ -94,6 +113,10 @@ describe('ContentManagementPage', () => {
     }
     await confirmButton.trigger('click');
     await flushPromises();
+    await clickButton(
+      wrapper.findAll<HTMLButtonElement>('button'),
+      'Редактирование',
+    );
 
     expect(wrapper.get<HTMLTextAreaElement>('#schedule').element.value).toBe(
       'Понедельник, 19:00',
@@ -101,3 +124,14 @@ describe('ContentManagementPage', () => {
     expect(wrapper.text()).toContain('Предыдущая версия восстановлена');
   });
 });
+
+async function clickButton(
+  buttons: DOMWrapper<HTMLButtonElement>[],
+  label: string,
+): Promise<void> {
+  const button = buttons.find((candidate) => candidate.text() === label);
+  if (!button) {
+    throw new Error(`Expected the "${label}" button`);
+  }
+  await button.trigger('click');
+}
