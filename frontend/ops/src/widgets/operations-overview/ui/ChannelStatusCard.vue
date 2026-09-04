@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import { connectionSourceLabel } from '@ops/entities/operations/lib/status-format';
+import {
+  connectionSourceLabel,
+  formatStatusTime,
+} from '@ops/entities/operations/lib/status-format';
 import type { ChannelOperationsStatus } from '@ops/entities/operations/model/types';
 
 const props = defineProps<{
@@ -10,10 +13,13 @@ const props = defineProps<{
 }>();
 
 const state = computed(() => {
-  if (!props.channel.configured) {
+  if (props.channel.state === 'not_configured') {
     return { label: 'Не настроен', tone: 'neutral' };
   }
-  if (props.channel.running) {
+  if (props.channel.state === 'poll_failed') {
+    return { label: 'Ошибка связи', tone: 'attention' };
+  }
+  if (props.channel.state === 'running') {
     return { label: 'Запущен', tone: 'healthy' };
   }
   return { label: 'Остановлен', tone: 'attention' };
@@ -29,5 +35,15 @@ const state = computed(() => {
       </span>
     </div>
     <p>{{ connectionSourceLabel(channel.source) }}</p>
+    <dl v-if="channel.configured" class="channel-activity">
+      <div>
+        <dt>Последняя успешная проверка</dt>
+        <dd>{{ formatStatusTime(channel.lastSuccessfulPollAt) }}</dd>
+      </div>
+      <div v-if="channel.lastFailedPollAt">
+        <dt>Последняя ошибка связи</dt>
+        <dd>{{ formatStatusTime(channel.lastFailedPollAt) }}</dd>
+      </div>
+    </dl>
   </article>
 </template>
