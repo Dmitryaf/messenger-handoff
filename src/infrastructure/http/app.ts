@@ -16,12 +16,7 @@ import {
   setupPageStyles,
 } from './setup-page.js';
 
-export type DeliverySummaryProbe = () => DeliverySummary;
-
-export function createApp(
-  config: RuntimeConfig,
-  deliverySummary: DeliverySummaryProbe = () => ({ failed: 0, pending: 0 }),
-): FastifyInstance {
+export function createApp(config: RuntimeConfig): FastifyInstance {
   const app = Fastify({
     logger: {
       level: config.logLevel,
@@ -29,16 +24,6 @@ export function createApp(
   });
 
   app.get('/health', () => ({ status: 'ok' }));
-  app.get('/ready', async (_request, reply) => {
-    try {
-      return {
-        deliveries: deliverySummary(),
-        status: 'ready',
-      };
-    } catch {
-      return reply.code(503).send({ status: 'not_ready' });
-    }
-  });
 
   return app;
 }
