@@ -38,7 +38,7 @@ export default tseslint.config(
   },
   ...pluginVue.configs['flat/recommended'],
   {
-    files: ['frontend/*/src/**/*.vue'],
+    files: ['frontend/src/**/*.vue'],
     languageOptions: {
       parserOptions: {
         extraFileExtensions: ['.vue'],
@@ -82,115 +82,66 @@ export default tseslint.config(
     },
   },
   {
-    files: ['frontend/shared/**/*.{ts,vue}'],
-    rules: {
-      'no-restricted-imports': [
-        'error',
-        { patterns: ['@manage/**', '@ops/**'] },
-      ],
-    },
-  },
-  {
-    files: ['frontend/manage/src/shared/**/*.{ts,vue}'],
+    files: ['frontend/src/shared/**/*.{ts,vue}'],
     rules: {
       'no-restricted-imports': [
         'error',
         {
           patterns: [
-            '@manage/entities/**',
-            '@manage/features/**',
-            '@manage/widgets/**',
-            '@manage/pages/**',
-            '@manage/app/**',
+            '@frontend/entities/**',
+            '@frontend/features/**',
+            '@frontend/widgets/**',
+            '@frontend/pages/**',
+            '@frontend/app/**',
           ],
         },
       ],
     },
   },
   {
-    files: ['frontend/manage/src/entities/**/*.{ts,vue}'],
+    files: ['frontend/src/entities/**/*.{ts,vue}'],
     rules: {
       'no-restricted-imports': [
         'error',
         {
           patterns: [
-            '@manage/features/**',
-            '@manage/widgets/**',
-            '@manage/pages/**',
-            '@manage/app/**',
+            '@frontend/features/**',
+            '@frontend/widgets/**',
+            '@frontend/pages/**',
+            '@frontend/app/**',
           ],
         },
       ],
     },
   },
   {
-    files: ['frontend/manage/src/features/**/*.{ts,vue}'],
+    files: ['frontend/src/features/**/*.{ts,vue}'],
     rules: {
       'no-restricted-imports': [
         'error',
         {
           patterns: [
-            '@manage/widgets/**',
-            '@manage/pages/**',
-            '@manage/app/**',
+            '@frontend/widgets/**',
+            '@frontend/pages/**',
+            '@frontend/app/**',
           ],
         },
       ],
     },
   },
   {
-    files: ['frontend/manage/src/widgets/**/*.{ts,vue}'],
+    files: ['frontend/src/widgets/**/*.{ts,vue}'],
     rules: {
       'no-restricted-imports': [
         'error',
-        { patterns: ['@manage/pages/**', '@manage/app/**'] },
+        { patterns: ['@frontend/pages/**', '@frontend/app/**'] },
       ],
     },
   },
   {
-    files: ['frontend/manage/src/pages/**/*.{ts,vue}'],
+    files: ['frontend/src/pages/**/*.{ts,vue}'],
     rules: {
-      'no-restricted-imports': ['error', { patterns: ['@manage/app/**'] }],
-    },
-  },
-  {
-    files: ['frontend/ops/src/entities/**/*.{ts,vue}'],
-    rules: {
-      'no-restricted-imports': [
-        'error',
-        {
-          patterns: [
-            '@ops/features/**',
-            '@ops/widgets/**',
-            '@ops/pages/**',
-            '@ops/app/**',
-          ],
-        },
-      ],
-    },
-  },
-  {
-    files: ['frontend/ops/src/features/**/*.{ts,vue}'],
-    rules: {
-      'no-restricted-imports': [
-        'error',
-        { patterns: ['@ops/widgets/**', '@ops/pages/**', '@ops/app/**'] },
-      ],
-    },
-  },
-  {
-    files: ['frontend/ops/src/widgets/**/*.{ts,vue}'],
-    rules: {
-      'no-restricted-imports': [
-        'error',
-        { patterns: ['@ops/pages/**', '@ops/app/**'] },
-      ],
-    },
-  },
-  {
-    files: ['frontend/ops/src/pages/**/*.{ts,vue}'],
-    rules: {
-      'no-restricted-imports': ['error', { patterns: ['@ops/app/**'] }],
+      'no-restricted-imports': ['error', { patterns: ['@frontend/app/**'] }],
     },
   },
   {

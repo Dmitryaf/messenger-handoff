@@ -1,17 +1,10 @@
 {
-  "extends": "../../frontend/manage/tsconfig.json",
+  "extends": "../../frontend/tsconfig.json",
   "compilerOptions": {
     "paths": {
-      "@frontend/*": ["../../frontend/*"],
-      "@manage/*": ["../../frontend/manage/src/*"],
-      "@ops/*": ["../../frontend/ops/src/*"],
+      "@frontend/*": ["../../frontend/src/*"],
       "@test/*": ["../*"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "../../frontend/manage/src/**/*.d.ts",
-    "../../frontend/ops/src/**/*.d.ts",
-    "../../frontend/shared/**/*.ts"
-  ]
+  "include": ["**/*.ts", "../../frontend/src/**/*.d.ts"]
 }

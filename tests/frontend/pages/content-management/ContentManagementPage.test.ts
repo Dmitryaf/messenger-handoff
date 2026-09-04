@@ -3,7 +3,7 @@
 import { flushPromises, mount, type DOMWrapper } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import ContentManagementPage from '@manage/pages/content-management/ui/ContentManagementPage.vue';
+import ContentManagementPage from '@frontend/pages/content-management/ui/ContentManagementPage.vue';
 import { requestUrl, response } from '@test/frontend/support/fake-response';
 
 describe('ContentManagementPage', () => {

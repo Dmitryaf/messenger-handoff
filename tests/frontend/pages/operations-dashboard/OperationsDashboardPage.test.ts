@@ -3,7 +3,7 @@
 import { flushPromises, mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
 
-import OperationsDashboardPage from '@ops/pages/operations-dashboard/ui/OperationsDashboardPage.vue';
+import OperationsDashboardPage from '@frontend/pages/operations-dashboard/ui/OperationsDashboardPage.vue';
 import { requestUrl, response } from '@test/frontend/support/fake-response';
 
 describe('OperationsDashboardPage', () => {
@@ -82,6 +82,7 @@ describe('OperationsDashboardPage', () => {
 
     expect(wrapper.text()).toContain('Сессия завершилась');
     expect(wrapper.text()).toContain('Вход владельца');
+    expect(wrapper.find('.auth-panel .auth-card').exists()).toBe(true);
 
     wrapper.unmount();
   });

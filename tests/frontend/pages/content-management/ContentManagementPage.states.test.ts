@@ -3,7 +3,7 @@
 import { flushPromises, mount } from '@vue/test-utils';
 import { describe, expect, it, vi } from 'vitest';
 
-import ContentManagementPage from '@manage/pages/content-management/ui/ContentManagementPage.vue';
+import ContentManagementPage from '@frontend/pages/content-management/ui/ContentManagementPage.vue';
 import { requestUrl, response } from '@test/frontend/support/fake-response';
 
 describe('ContentManagementPage states', () => {
@@ -92,5 +92,6 @@ describe('ContentManagementPage states', () => {
 
     expect(wrapper.text()).toContain('Сессия завершилась. Войдите снова.');
     expect(wrapper.find('input[type="password"]').exists()).toBe(true);
+    expect(wrapper.find('.auth-panel .auth-card').exists()).toBe(true);
   });
 });
