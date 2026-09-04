@@ -5,27 +5,27 @@ import {
   createSessionCookie,
   readCookie,
 } from '@/infrastructure/http/session-cookie.js';
-import type { ContentManagementAccess } from '@/modules/content-management/security/content-management-access.js';
-import type { ManagementRouteAccess } from './route-access.js';
+import type { OperationsAccess } from '@/modules/operations-monitoring/security/operations-access.js';
+import type { OperationsRouteAccess } from './route-access.js';
 
 const passwordSchema = z.object({
   password: z.string().min(1).max(200),
 });
 const sessionMaxAgeSeconds = 12 * 60 * 60;
 
-export function registerManagementSessionRoutes(
+export function registerOperationsSessionRoutes(
   app: FastifyInstance,
-  access: ContentManagementAccess,
-  routeAccess: ManagementRouteAccess,
+  access: OperationsAccess,
+  routeAccess: OperationsRouteAccess,
   secureCookies: boolean,
 ): void {
   app.get(
-    '/api/manage/session',
+    '/api/ops/session',
     { preHandler: routeAccess.requireAvailable },
     (request) => ({ authenticated: routeAccess.isAuthorized(request) }),
   );
   app.post(
-    '/api/manage/login',
+    '/api/ops/login',
     {
       preHandler: [routeAccess.requireAvailable, routeAccess.requireSameOrigin],
     },
@@ -60,7 +60,7 @@ export function registerManagementSessionRoutes(
     },
   );
   app.post(
-    '/api/manage/logout',
+    '/api/ops/logout',
     {
       preHandler: [routeAccess.requireAvailable, routeAccess.requireSameOrigin],
     },

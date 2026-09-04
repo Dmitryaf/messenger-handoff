@@ -1,16 +1,14 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 import { readCookie } from '@/infrastructure/http/session-cookie.js';
-import type { ContentManagementAccess } from '@/modules/content-management/security/content-management-access.js';
-import type { ManagementAssets } from './assets.js';
+import type { OperationsAccess } from '@/modules/operations-monitoring/security/operations-access.js';
 
-export interface ManagementRouteOptions {
+export interface OperationsRouteOptions {
   allowLocalBypass: boolean;
-  assets?: ManagementAssets;
   secureCookies: boolean;
 }
 
-export interface ManagementRouteAccess {
+export interface OperationsRouteAccess {
   cookieName: string;
   isAuthorized: (request: FastifyRequest) => boolean;
   requireAuthorization: (
@@ -27,14 +25,14 @@ export interface ManagementRouteAccess {
   ) => Promise<unknown>;
 }
 
-export function createManagementRouteAccess(
+export function createOperationsRouteAccess(
   app: FastifyInstance,
-  access: ContentManagementAccess,
-  options: ManagementRouteOptions,
-): ManagementRouteAccess {
+  access: OperationsAccess,
+  options: OperationsRouteOptions,
+): OperationsRouteAccess {
   const cookieName = options.secureCookies
-    ? '__Host-mh-content-session'
-    : 'mh-content-session';
+    ? '__Host-mh-ops-session'
+    : 'mh-ops-session';
   const isAvailable = (request: FastifyRequest): boolean =>
     access.isConfigured() ||
     (options.allowLocalBypass && isLoopback(request.ip));
@@ -43,7 +41,7 @@ export function createManagementRouteAccess(
     access.authenticate(readCookie(request.headers.cookie, cookieName));
 
   app.addHook('onSend', async (request, reply, payload) => {
-    if (isManagementUrl(request.url)) {
+    if (isOperationsUrl(request.url)) {
       void reply.header('cache-control', 'no-store');
       void reply.header('referrer-policy', 'no-referrer');
       void reply.header('x-content-type-options', 'nosniff');
@@ -62,7 +60,7 @@ export function createManagementRouteAccess(
       if (!isAuthorized(request)) {
         return reply
           .code(401)
-          .send({ message: 'Войдите, чтобы изменить информацию.' });
+          .send({ message: 'Войдите, чтобы увидеть состояние сервиса.' });
       }
     },
     requireAvailable: async (request, reply) => {
@@ -86,11 +84,9 @@ export function createManagementRouteAccess(
   };
 }
 
-function isManagementUrl(url: string): boolean {
+function isOperationsUrl(url: string): boolean {
   return (
-    url === '/manage' ||
-    url.startsWith('/manage/') ||
-    url.startsWith('/api/manage/')
+    url === '/ops' || url.startsWith('/ops/') || url.startsWith('/api/ops/')
   );
 }
 
