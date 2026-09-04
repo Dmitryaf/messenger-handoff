@@ -39,19 +39,6 @@ export const setupPageHtml = `<!doctype html>
         </div>
         <p id='vk-status'>Проверяем состояние…</p>
       </section>
-      <section aria-labelledby='content-title'>
-        <h2 id='content-title'>Информация для клиентов</h2>
-        <p>Эти ответы одинаково отображаются в Telegram и VK. Пустой раздел будет отмечен как не заполненный.</p>
-        <label>Расписание <textarea id='content-schedule' rows='5'></textarea></label>
-        <label>Цены <textarea id='content-prices' rows='5'></textarea></label>
-        <label>Адрес <textarea id='content-address' rows='3'></textarea></label>
-        <h3>Дополнительные кнопки</h3>
-        <p class='muted'>Можно добавить до шести собственных разделов. Частые вопросы редактируются на странице /manage.</p>
-        <div id='custom-sections'></div>
-        <button id='add-custom-section' type='button'>Добавить кнопку</button>
-        <button id='save-content'>Сохранить информацию</button>
-        <p id='content-status' class='muted'>Загружаем сохранённые значения…</p>
-      </section>
       <section aria-labelledby='delivery-title'>
         <h2 id='delivery-title'>Доставка ответов</h2>
         <p id='delivery-summary'>Проверяем состояние…</p>
@@ -149,13 +136,6 @@ export const setupPageScript = `(() => {
   const vkStatus = query('#vk-status');
   const vkToken = query('#vk-token');
   const vkCommunity = query('#vk-community');
-  const contentSchedule = query('#content-schedule');
-  const contentPrices = query('#content-prices');
-  const contentAddress = query('#content-address');
-  const contentStatus = query('#content-status');
-  const customSections = query('#custom-sections');
-  const addCustomSection = query('#add-custom-section');
-  let currentFaq = [];
 
   const request = async (url, data) => {
     const response = await fetch(url, {
@@ -164,7 +144,9 @@ export const setupPageScript = `(() => {
       body: data ? JSON.stringify(data) : undefined,
     });
     const body = await response.json();
-    if (!response.ok) throw new Error(body.message);
+    if (!response.ok) {
+      throw new Error(body.message);
+    }
     return body;
   };
 
@@ -172,40 +154,6 @@ export const setupPageScript = `(() => {
     status.textContent = message;
   };
 
-  const createCustomSection = (section = {}) => {
-    const container = document.createElement('div');
-    container.className = 'custom-section';
-    const remove = document.createElement('button');
-    remove.type = 'button';
-    remove.textContent = 'Удалить кнопку';
-    const label = document.createElement('label');
-    label.textContent = 'Название кнопки';
-    const labelInput = document.createElement('input');
-    labelInput.type = 'text';
-    labelInput.maxLength = 40;
-    labelInput.value = section.label ?? '';
-    label.append(labelInput);
-
-    const textLabel = document.createElement('label');
-    textLabel.textContent = 'Ответ';
-    const textInput = document.createElement('textarea');
-    textInput.rows = 4;
-    textInput.maxLength = 4000;
-    textInput.value = section.text ?? '';
-    textLabel.append(textInput);
-    remove.onclick = () => {
-      container.remove();
-      addCustomSection.disabled = false;
-    };
-    container.append(remove, label, textLabel);
-    return container;
-  };
-
-  addCustomSection.onclick = () => {
-    if (customSections.children.length >= 6) return;
-    customSections.append(createCustomSection());
-    addCustomSection.disabled = customSections.children.length >= 6;
-  };
 
   query('#discover').onclick = async () => {
     try {
@@ -321,29 +269,6 @@ export const setupPageScript = `(() => {
   };
 
   query('#refresh-deliveries').onclick = refreshDeliveries;
-  query('#save-content').onclick = async (event) => {
-    const button = event.currentTarget;
-    button.disabled = true;
-    contentStatus.textContent = 'Сохраняем…';
-    try {
-      await request('/api/setup/content', {
-        address: contentAddress.value,
-        customSections: [...customSections.children].map((container) => ({
-          label: container.querySelector('input').value,
-          text: container.querySelector('textarea').value,
-        })),
-        faq: currentFaq,
-        prices: contentPrices.value,
-        schedule: contentSchedule.value,
-      });
-      contentStatus.textContent =
-        'Сохранено. Новые ответы уже доступны в Telegram и VK.';
-    } catch (error) {
-      contentStatus.textContent = error.message;
-    } finally {
-      button.disabled = false;
-    }
-  };
   query('#create-backup').onclick = async (event) => {
     const button = event.currentTarget;
     button.disabled = true;
@@ -360,13 +285,15 @@ export const setupPageScript = `(() => {
   };
   request('/api/setup/status')
     .then((data) => {
-      if (data.connected) showStatus('Telegram подключён.');
-      else {
+      if (data.connected) {
+        showStatus('Telegram подключён.');
+      } else {
         wizard.hidden = false;
         showStatus('Выполните три шага выше.');
       }
-      if (data.vk.connected) vkStatus.textContent = 'VK подключён.';
-      else {
+      if (data.vk.connected) {
+        vkStatus.textContent = 'VK подключён.';
+      } else {
         vkWizard.hidden = false;
         vkStatus.textContent = data.connected
           ? 'Выполните три шага выше.'
@@ -375,21 +302,5 @@ export const setupPageScript = `(() => {
     })
     .catch((error) => showStatus(error.message));
   void refreshDeliveries();
-  request('/api/setup/content')
-    .then((content) => {
-      contentSchedule.value = content.schedule ?? '';
-      contentPrices.value = content.prices ?? '';
-      contentAddress.value = content.address ?? '';
-      currentFaq = content.faq ?? [];
-      customSections.replaceChildren(
-        ...(content.customSections ?? []).map(createCustomSection),
-      );
-      addCustomSection.disabled = customSections.children.length >= 6;
-      contentStatus.textContent = 'Изменения применяются без перезапуска.';
-    })
-    .catch(() => {
-      contentStatus.textContent =
-        'Не удалось загрузить информацию. Обновите страницу.';
-    });
   window.setInterval(refreshDeliveries, 10000);
 })();`;

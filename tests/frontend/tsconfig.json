@@ -1,0 +1,10 @@
+{
+  "extends": "../../frontend/manage/tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@manage/*": ["../../frontend/manage/src/*"],
+      "@test/*": ["../*"]
+    }
+  },
+  "include": ["**/*.ts", "../../frontend/manage/src/**/*.d.ts"]
+}

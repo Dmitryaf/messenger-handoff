@@ -48,8 +48,9 @@ npm run check
 Telegram and VK text handoff, topic recovery, durable reply delivery, local
 connection setup, verified SQLite backups, persistent information buttons, and
 editable schedule, price, address, and custom information sections are
-implemented. A protected content editor, readable list and FAQ formatting, and
-metadata-only change history are also available. Production deployment is not implemented yet.
+implemented. A protected mobile-friendly Vue content editor, readable list and
+FAQ formatting, and restorable content history are also available. Production
+deployment is not implemented yet.
 
 ## License
 
