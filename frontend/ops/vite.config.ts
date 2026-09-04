@@ -7,11 +7,11 @@ import { defineConfig } from 'vite';
 const root = fileURLToPath(new URL('.', import.meta.url));
 
 export default defineConfig({
-  base: '/manage/',
+  base: '/ops/',
   build: {
     assetsDir: '',
     emptyOutDir: false,
-    outDir: resolve(root, '../../dist/manage'),
+    outDir: resolve(root, '../../dist/ops'),
     rollupOptions: {
       input: resolve(root, 'index.html'),
       output: {
@@ -24,7 +24,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@frontend': resolve(root, '..'),
-      '@manage': resolve(root, 'src'),
+      '@ops': resolve(root, 'src'),
     },
   },
   root,

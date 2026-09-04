@@ -6,7 +6,7 @@ export default tseslint.config(
     ignores: ['.ai-rules/**', '.local/**', 'coverage/**', 'dist/**'],
   },
   {
-    files: ['src/**/*.ts', 'frontend/manage/src/**/*.ts', 'tests/**/*.ts'],
+    files: ['src/**/*.ts', 'frontend/**/*.ts', 'tests/**/*.ts'],
     extends: [
       ...tseslint.configs.recommendedTypeChecked,
       ...tseslint.configs.stylisticTypeChecked,
@@ -38,7 +38,7 @@ export default tseslint.config(
   },
   ...pluginVue.configs['flat/recommended'],
   {
-    files: ['frontend/manage/src/**/*.vue'],
+    files: ['frontend/*/src/**/*.vue'],
     languageOptions: {
       parserOptions: {
         extraFileExtensions: ['.vue'],
@@ -60,7 +60,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['frontend/manage/src/**/*.ts', 'tests/frontend/**/*.ts'],
+    files: ['frontend/**/*.ts', 'tests/frontend/**/*.ts'],
     rules: {
       'max-lines': [
         'error',
@@ -69,12 +69,24 @@ export default tseslint.config(
     },
   },
   {
-    files: ['src/modules/content-management/**/*.ts'],
+    files: [
+      'src/modules/content-management/**/*.ts',
+      'src/modules/operations-monitoring/**/*.ts',
+    ],
     ignores: ['**/*.test.ts'],
     rules: {
       'max-lines': [
         'error',
         { max: 140, skipBlankLines: true, skipComments: true },
+      ],
+    },
+  },
+  {
+    files: ['frontend/shared/**/*.{ts,vue}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        { patterns: ['@manage/**', '@ops/**'] },
       ],
     },
   },
@@ -142,6 +154,46 @@ export default tseslint.config(
     },
   },
   {
+    files: ['frontend/ops/src/entities/**/*.{ts,vue}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            '@ops/features/**',
+            '@ops/widgets/**',
+            '@ops/pages/**',
+            '@ops/app/**',
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['frontend/ops/src/features/**/*.{ts,vue}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        { patterns: ['@ops/widgets/**', '@ops/pages/**', '@ops/app/**'] },
+      ],
+    },
+  },
+  {
+    files: ['frontend/ops/src/widgets/**/*.{ts,vue}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        { patterns: ['@ops/pages/**', '@ops/app/**'] },
+      ],
+    },
+  },
+  {
+    files: ['frontend/ops/src/pages/**/*.{ts,vue}'],
+    rules: {
+      'no-restricted-imports': ['error', { patterns: ['@ops/app/**'] }],
+    },
+  },
+  {
     files: ['src/modules/content-management/application/**/*.ts'],
     rules: {
       'no-restricted-imports': [
@@ -179,6 +231,20 @@ export default tseslint.config(
           patterns: [
             '@/modules/content-management/infrastructure/**',
             '@/modules/content-management/presentation/**',
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['src/modules/operations-monitoring/application/**/*.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            '@/modules/operations-monitoring/presentation/**',
+            '@/modules/operations-monitoring/security/**',
           ],
         },
       ],
