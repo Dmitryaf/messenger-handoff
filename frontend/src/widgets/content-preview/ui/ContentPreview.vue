@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 
-import { hasContent } from '@frontend/entities/content/model/content-draft';
+import {
+  hasContent,
+  isSectionVisible,
+} from '@frontend/entities/content/model/content-draft';
 import type { ContentDraft } from '@frontend/entities/content/model/types';
 
 const props = defineProps<{ content: ContentDraft }>();
@@ -16,25 +19,29 @@ const visible = computed(() => hasContent(props.content));
       Заполните разделы — здесь появится будущий ответ.
     </p>
     <template v-else>
-      <div v-if="content.schedule.trim()">
+      <div
+        v-if="isSectionVisible(content, 'schedule') && content.schedule.trim()"
+      >
         <h3>Расписание</h3>
         <p class="preserve">
           {{ content.schedule }}
         </p>
       </div>
-      <div v-if="content.prices.trim()">
+      <div v-if="isSectionVisible(content, 'prices') && content.prices.trim()">
         <h3>Цены</h3>
         <p class="preserve">
           {{ content.prices }}
         </p>
       </div>
-      <div v-if="content.address.trim()">
+      <div
+        v-if="isSectionVisible(content, 'address') && content.address.trim()"
+      >
         <h3>Адрес</h3>
         <p class="preserve">
           {{ content.address }}
         </p>
       </div>
-      <div v-if="content.faq.length">
+      <div v-if="isSectionVisible(content, 'faq') && content.faq.length">
         <h3>Частые вопросы</h3>
         <dl>
           <template v-for="(item, index) in content.faq" :key="index">

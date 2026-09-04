@@ -12,7 +12,7 @@ defineProps<{ activeSection: EditorSection }>();
 <template>
   <div class="editor">
     <CoreSectionsFields v-if="activeSection === 'core'" v-model="draft" />
-    <FaqEditor v-else-if="activeSection === 'faq'" v-model="draft.faq" />
+    <FaqEditor v-else-if="activeSection === 'faq'" v-model="draft" />
     <CustomSectionsEditor v-else v-model="draft.customSections" />
   </div>
 </template>

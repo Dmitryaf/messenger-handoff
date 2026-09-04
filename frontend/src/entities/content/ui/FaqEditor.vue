@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import type { FaqItem } from '@frontend/entities/content/model/types';
+import type { ContentDraft } from '@frontend/entities/content/model/types';
 import { moveItem } from '@frontend/shared/lib/move-item';
+import SectionVisibilityControl from './SectionVisibilityControl.vue';
 
-const items = defineModel<FaqItem[]>({ required: true });
+const draft = defineModel<ContentDraft>({ required: true });
 
 function add(): void {
-  if (items.value.length < 20) {
-    items.value.push({ answer: '', question: '' });
+  if (draft.value.faq.length < 20) {
+    draft.value.faq.push({ answer: '', question: '' });
   }
 }
 </script>
@@ -18,13 +19,18 @@ function add(): void {
         <p class="step">Готовый раздел меню</p>
         <h2>Частые вопросы</h2>
       </div>
-      <span>{{ items.length }} / 20</span>
+      <span>{{ draft.faq.length }} / 20</span>
     </div>
     <p>Вопросы показываются клиенту в этом порядке.</p>
-    <p v-if="items.length === 0" class="empty">
+    <SectionVisibilityControl
+      v-model="draft.visibleSections"
+      :content-present="draft.faq.length > 0"
+      section="faq"
+    />
+    <p v-if="draft.faq.length === 0" class="empty">
       Вопросов пока нет. Клиенту предложат написать преподавателю.
     </p>
-    <fieldset v-for="(item, index) in items" :key="index" class="item-card">
+    <fieldset v-for="(item, index) in draft.faq" :key="index" class="item-card">
       <legend>Вопрос {{ index + 1 }}</legend>
       <label :for="`faq-question-${index}`">Вопрос</label>
       <input
@@ -45,23 +51,27 @@ function add(): void {
         <button
           :disabled="index === 0"
           type="button"
-          @click="moveItem(items, index, -1)"
+          @click="moveItem(draft.faq, index, -1)"
         >
           Выше
         </button>
         <button
-          :disabled="index === items.length - 1"
+          :disabled="index === draft.faq.length - 1"
           type="button"
-          @click="moveItem(items, index, 1)"
+          @click="moveItem(draft.faq, index, 1)"
         >
           Ниже
         </button>
-        <button class="danger" type="button" @click="items.splice(index, 1)">
+        <button
+          class="danger"
+          type="button"
+          @click="draft.faq.splice(index, 1)"
+        >
           Удалить
         </button>
       </div>
     </fieldset>
-    <button :disabled="items.length >= 20" type="button" @click="add">
+    <button :disabled="draft.faq.length >= 20" type="button" @click="add">
       Добавить вопрос
     </button>
   </section>

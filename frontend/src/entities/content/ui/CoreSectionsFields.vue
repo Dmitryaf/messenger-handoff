@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { ContentDraft } from '@frontend/entities/content/model/types';
+import SectionVisibilityControl from '@frontend/entities/content/ui/SectionVisibilityControl.vue';
 
 const draft = defineModel<ContentDraft>({ required: true });
 </script>
@@ -24,6 +25,11 @@ const draft = defineModel<ContentDraft>({ required: true });
         rows="5"
       />
       <p class="counter">{{ draft.schedule.length }} / 4000</p>
+      <SectionVisibilityControl
+        v-model="draft.visibleSections"
+        :content-present="Boolean(draft.schedule.trim())"
+        section="schedule"
+      />
     </details>
 
     <details class="field-group">
@@ -34,6 +40,11 @@ const draft = defineModel<ContentDraft>({ required: true });
       <label for="prices">Текст для клиента</label>
       <textarea id="prices" v-model="draft.prices" maxlength="4000" rows="5" />
       <p class="counter">{{ draft.prices.length }} / 4000</p>
+      <SectionVisibilityControl
+        v-model="draft.visibleSections"
+        :content-present="Boolean(draft.prices.trim())"
+        section="prices"
+      />
     </details>
 
     <details class="field-group">
@@ -49,6 +60,11 @@ const draft = defineModel<ContentDraft>({ required: true });
         rows="4"
       />
       <p class="counter">{{ draft.address.length }} / 4000</p>
+      <SectionVisibilityControl
+        v-model="draft.visibleSections"
+        :content-present="Boolean(draft.address.trim())"
+        section="address"
+      />
     </details>
   </section>
 </template>
