@@ -4,6 +4,7 @@ import { computed } from 'vue';
 import { formatUptime } from '@frontend/entities/operations/lib/status-format';
 import type { OperationsStatus } from '@frontend/entities/operations/model/types';
 import ChannelStatusCard from './ChannelStatusCard.vue';
+import DeliveryStatusCard from './DeliveryStatusCard.vue';
 
 const props = defineProps<{ status: OperationsStatus }>();
 
@@ -44,31 +45,7 @@ const observedAt = computed(() =>
     <div class="status-grid">
       <ChannelStatusCard name="Telegram" :channel="status.channels.telegram" />
       <ChannelStatusCard name="VK" :channel="status.channels.vk" />
-      <article class="status-card delivery-card">
-        <div class="status-card-heading">
-          <h3>Доставка ответов</h3>
-          <span
-            class="status-pill"
-            :class="
-              status.deliveries.failed > 0
-                ? 'status-pill--attention'
-                : 'status-pill--healthy'
-            "
-          >
-            {{ status.deliveries.failed > 0 ? 'Есть ошибки' : 'Без ошибок' }}
-          </span>
-        </div>
-        <dl class="delivery-facts">
-          <div>
-            <dt>Ожидают отправки</dt>
-            <dd>{{ status.deliveries.pending }}</dd>
-          </div>
-          <div>
-            <dt>Не доставлены</dt>
-            <dd>{{ status.deliveries.failed }}</dd>
-          </div>
-        </dl>
-      </article>
+      <DeliveryStatusCard :deliveries="status.deliveries" />
     </div>
   </section>
 </template>
