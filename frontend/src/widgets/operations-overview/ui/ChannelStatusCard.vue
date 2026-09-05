@@ -5,10 +5,14 @@ import {
   connectionSourceLabel,
   formatStatusTime,
 } from '@frontend/entities/operations/lib/status-format';
-import type { ChannelOperationsStatus } from '@frontend/entities/operations/model/types';
+import type {
+  ChannelOperationsStatus,
+  ClientIntakeOperationsStatus,
+} from '@frontend/entities/operations/model/types';
 
 const props = defineProps<{
   channel: ChannelOperationsStatus;
+  intake: ClientIntakeOperationsStatus;
   name: string;
 }>();
 
@@ -41,6 +45,9 @@ const state = computed(() => {
       </span>
     </div>
     <p>{{ connectionSourceLabel(channel.source) }}</p>
+    <p v-if="intake.mode === 'paused'" class="channel-maintenance-note">
+      Новые обращения приостановлены вручную.
+    </p>
     <dl v-if="channel.configured" class="channel-activity">
       <div>
         <dt>Последняя успешная проверка</dt>

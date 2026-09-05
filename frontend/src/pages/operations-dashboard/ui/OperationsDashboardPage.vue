@@ -3,6 +3,7 @@ import { onBeforeUnmount, watch } from 'vue';
 
 import { useOperationsSession } from '@frontend/features/operations-auth/model/use-operations-session';
 import OperationsLoginForm from '@frontend/features/operations-auth/ui/OperationsLoginForm.vue';
+import ClientIntakeControl from '@frontend/features/control-client-intake/ui/ClientIntakeControl.vue';
 import { useOperationsStatus } from '@frontend/features/refresh-status/model/use-operations-status';
 import OperationsOverview from '@frontend/widgets/operations-overview/ui/OperationsOverview.vue';
 
@@ -105,6 +106,12 @@ function stopAutomaticRefresh(): void {
       >
         {{ operations.error.value }}
       </p>
+
+      <ClientIntakeControl
+        scope="ops"
+        @changed="operations.refresh"
+        @unauthorized="session.expireSession"
+      />
 
       <OperationsOverview
         v-if="operations.status.value"

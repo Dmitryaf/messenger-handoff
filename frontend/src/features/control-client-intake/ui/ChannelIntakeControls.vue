@@ -1,0 +1,77 @@
+<script setup lang="ts">
+import type {
+  ClientChannel,
+  ServiceControlState,
+} from '@frontend/entities/service-control/model/types';
+
+const props = defineProps<{
+  pendingChannel: ClientChannel | undefined;
+  state: ServiceControlState;
+}>();
+defineEmits<{
+  change: [channel: ClientChannel, mode: 'active' | 'paused'];
+}>();
+
+function channelName(channel: ClientChannel): string {
+  return channel === 'telegram' ? 'Telegram' : 'VK';
+}
+
+function pauseExplanation(channel: ClientChannel): string {
+  const channelIsPaused = props.state.channels[channel].mode === 'paused';
+  if (channel === 'telegram') {
+    if (channelIsPaused) {
+      return 'Бот не принимает новые обращения и предлагает посмотреть контакт в описании.';
+    }
+    return 'Клиенты могут начать новый разговор через бота.';
+  }
+  if (channelIsPaused) {
+    return 'Сообщения остаются в сообществе и не передаются в Telegram.';
+  }
+  return 'Новые сообщения передаются преподавателю.';
+}
+</script>
+
+<template>
+  <div class="intake-channel-list">
+    <article v-for="channel in ['telegram', 'vk'] as const" :key="channel">
+      <div>
+        <div class="intake-channel-heading">
+          <strong>{{ channelName(channel) }}</strong>
+          <span
+            class="intake-status"
+            :class="{
+              'intake-status--paused':
+                state.channels[channel].mode === 'paused',
+            }"
+          >
+            {{
+              state.channels[channel].mode === 'paused'
+                ? 'На паузе'
+                : 'Работает'
+            }}
+          </span>
+        </div>
+        <p>{{ pauseExplanation(channel) }}</p>
+      </div>
+      <button
+        v-if="state.channels[channel].mode === 'active'"
+        class="danger"
+        type="button"
+        :disabled="Boolean(pendingChannel)"
+        @click="$emit('change', channel, 'paused')"
+      >
+        Приостановить
+      </button>
+      <button
+        v-else
+        type="button"
+        :disabled="Boolean(pendingChannel)"
+        @click="$emit('change', channel, 'active')"
+      >
+        Возобновить
+      </button>
+    </article>
+  </div>
+</template>
+
+<style scoped src="./channel-intake-controls.css"></style>

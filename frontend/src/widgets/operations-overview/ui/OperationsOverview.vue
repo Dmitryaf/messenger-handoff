@@ -20,13 +20,20 @@ const observedAt = computed(() =>
   <section class="overview" aria-labelledby="overview-title">
     <article
       class="summary-card card"
-      :class="{ 'summary-card--attention': status.state === 'attention' }"
+      :class="{
+        'summary-card--attention': status.state === 'attention',
+        'summary-card--maintenance': status.state === 'maintenance',
+      }"
     >
       <div>
         <p class="eyebrow">Общее состояние</p>
         <h2 id="overview-title">
           {{
-            status.state === 'healthy' ? 'Сервис работает' : 'Нужно проверить'
+            status.state === 'healthy'
+              ? 'Сервис работает'
+              : status.state === 'maintenance'
+                ? 'Приём обращений приостановлен'
+                : 'Нужно проверить'
           }}
         </h2>
       </div>
@@ -43,8 +50,16 @@ const observedAt = computed(() =>
     </article>
 
     <div class="status-grid">
-      <ChannelStatusCard name="Telegram" :channel="status.channels.telegram" />
-      <ChannelStatusCard name="VK" :channel="status.channels.vk" />
+      <ChannelStatusCard
+        name="Telegram"
+        :channel="status.channels.telegram"
+        :intake="status.intake.telegram"
+      />
+      <ChannelStatusCard
+        name="VK"
+        :channel="status.channels.vk"
+        :intake="status.intake.vk"
+      />
       <DeliveryStatusCard :deliveries="status.deliveries" />
     </div>
   </section>
