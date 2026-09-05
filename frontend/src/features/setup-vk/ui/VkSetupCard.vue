@@ -4,6 +4,7 @@ import { ref } from 'vue';
 import { connectVk } from '@frontend/entities/setup/api/setup-api';
 import type { ChannelSetupStatus } from '@frontend/entities/setup/model/types';
 import { errorMessage } from '@frontend/shared/lib/error-message';
+import VkSetupInstructions from './VkSetupInstructions.vue';
 
 const props = defineProps<{
   status: ChannelSetupStatus;
@@ -35,15 +36,11 @@ async function connect(): Promise<void> {
     <p class="step">Шаг 2</p>
     <h2 id="vk-setup-title">Подключение VK</h2>
     <p v-if="status.connected" class="setup-status setup-status--success">
-      VK подключён.
+      VK подключён. После перезапуска сервис восстановит подключение
+      автоматически.
     </p>
     <template v-else>
-      <ol class="setup-steps">
-        <li>Включите «Возможности ботов» в настройках сообщений.</li>
-        <li>В разделе «Работа с API» включите Long Poll API.</li>
-        <li>Отметьте событие «Входящие сообщения».</li>
-        <li>Создайте ключ сообщества с правом работы с сообщениями.</li>
-      </ol>
+      <VkSetupInstructions />
       <p v-if="!telegramConnected" class="setup-status">
         Сначала подключите Telegram для операторов.
       </p>
@@ -51,7 +48,7 @@ async function connect(): Promise<void> {
         Подключение управляется настройками сервера.
       </p>
       <form v-else class="setup-form" @submit.prevent="connect">
-        <label for="vk-community">Ссылка на сообщество</label>
+        <label for="vk-community">Адрес сообщества VK</label>
         <input
           id="vk-community"
           v-model="community"
@@ -59,7 +56,7 @@ async function connect(): Promise<void> {
           required
           type="text"
         />
-        <label for="vk-token">Ключ доступа сообщества</label>
+        <label for="vk-token">Ключ доступа с правом работы с сообщениями</label>
         <input
           id="vk-token"
           v-model="accessToken"

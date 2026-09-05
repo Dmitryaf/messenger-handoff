@@ -54,7 +54,12 @@ function markVkConnected(): void {
       Проверяем подключения…
     </p>
     <div v-else class="setup-workspace">
-      <div class="setup-channel-grid">
+      <div
+        class="setup-channel-grid"
+        :class="{
+          'setup-channel-grid--mixed': status.connected !== status.vk.connected,
+        }"
+      >
         <TelegramSetupCard
           :status="status"
           @connected="markTelegramConnected"

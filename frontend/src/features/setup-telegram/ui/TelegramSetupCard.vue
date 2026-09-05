@@ -10,6 +10,7 @@ import type {
   TelegramOperatorChat,
 } from '@frontend/entities/setup/model/types';
 import { errorMessage } from '@frontend/shared/lib/error-message';
+import TelegramSetupInstructions from './TelegramSetupInstructions.vue';
 
 const props = defineProps<{ status: ChannelSetupStatus }>();
 const emit = defineEmits<{ connected: [] }>();
@@ -67,14 +68,11 @@ async function connect(): Promise<void> {
     <p class="step">Шаг 1</p>
     <h2 id="telegram-setup-title">Подключение Telegram</h2>
     <p v-if="status.connected" class="setup-status setup-status--success">
-      Telegram подключён.
+      Telegram подключён. После перезапуска сервис восстановит подключение
+      автоматически.
     </p>
     <template v-else>
-      <ol class="setup-steps">
-        <li>Создайте закрытую группу и включите темы.</li>
-        <li>Добавьте бота администратором с правом управлять темами.</li>
-        <li>Напишите в группе любое сообщение.</li>
-      </ol>
+      <TelegramSetupInstructions />
       <p v-if="status.locked" class="setup-status">
         Подключение управляется настройками сервера.
       </p>
