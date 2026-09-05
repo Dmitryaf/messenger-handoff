@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 
 import { useManagementSession } from '@frontend/features/management-auth/model/use-management-session';
 import LoginForm from '@frontend/features/management-auth/ui/LoginForm.vue';
@@ -8,6 +8,17 @@ import ContentWorkspace from '@frontend/widgets/content-workspace/ui/ContentWork
 
 const session = useManagementSession();
 const hasUnsavedChanges = ref(false);
+const workspaceActivated = ref(false);
+
+watch(
+  session.authenticated,
+  (authenticated) => {
+    if (authenticated) {
+      workspaceActivated.value = true;
+    }
+  },
+  { immediate: true },
+);
 
 async function logOut(): Promise<void> {
   if (
@@ -17,6 +28,10 @@ async function logOut(): Promise<void> {
     return;
   }
   await session.endSession();
+  if (!session.authenticated.value) {
+    workspaceActivated.value = false;
+    hasUnsavedChanges.value = false;
+  }
 }
 </script>
 
@@ -51,13 +66,16 @@ async function logOut(): Promise<void> {
           />
         </div>
       </section>
-      <template v-else>
+      <template v-if="session.authenticated.value">
         <AsyncMessage kind="error" :text="session.error.value" />
+      </template>
+      <div v-if="workspaceActivated" v-show="session.authenticated.value">
         <ContentWorkspace
+          :authenticated="session.authenticated.value"
           @dirty-change="hasUnsavedChanges = $event"
           @unauthorized="session.expireSession"
         />
-      </template>
+      </div>
     </main>
   </div>
 </template>

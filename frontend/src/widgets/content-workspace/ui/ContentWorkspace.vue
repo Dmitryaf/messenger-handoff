@@ -12,6 +12,7 @@ import type { EditorSection, WorkspaceView } from '../model/navigation';
 import { useContentWorkspace } from '../model/use-content-workspace';
 import WorkspaceNavigation from './WorkspaceNavigation.vue';
 
+const props = defineProps<{ authenticated: boolean }>();
 const emit = defineEmits<{
   dirtyChange: [dirty: boolean];
   unauthorized: [];
@@ -23,6 +24,14 @@ const activeView = ref<WorkspaceView>('edit');
 const activeSection = ref<EditorSection>('core');
 
 onMounted(() => void workspace.load());
+watch(
+  () => props.authenticated,
+  (authenticated, previous) => {
+    if (authenticated && previous === false) {
+      void workspace.resumeAfterAuthentication();
+    }
+  },
+);
 watch(workspace.dirty, (dirty) => emit('dirtyChange', dirty), {
   immediate: true,
 });
@@ -34,6 +43,12 @@ watch(workspace.dirty, (dirty) => emit('dirtyChange', dirty), {
   <p v-if="workspace.loading.value" class="state-card" role="status">
     Загружаем информацию…
   </p>
+  <section v-else-if="!workspace.loaded.value" class="state-card">
+    <p>Редактор не открыт. Повторите загрузку.</p>
+    <button class="secondary-button" type="button" @click="workspace.load">
+      Повторить
+    </button>
+  </section>
   <div
     v-else
     class="workspace"
@@ -74,6 +89,7 @@ watch(workspace.dirty, (dirty) => emit('dirtyChange', dirty), {
         v-else
         :changes="workspace.history.value"
         :has-unsaved-changes="workspace.dirty.value"
+        :loading="workspace.historyLoading.value"
         :restoring="workspace.restoring.value"
         @restore="workspace.restore"
       />

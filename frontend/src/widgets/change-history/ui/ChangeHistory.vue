@@ -9,6 +9,7 @@ import RestoreAction from '@frontend/features/restore-content/ui/RestoreAction.v
 defineProps<{
   changes: ContentChange[];
   hasUnsavedChanges: boolean;
+  loading: boolean;
   restoring: boolean;
 }>();
 defineEmits<{ restore: [revision: number] }>();
@@ -18,7 +19,8 @@ defineEmits<{ restore: [revision: number] }>();
   <section class="card" aria-labelledby="history-title">
     <p class="step">История</p>
     <h2 id="history-title">Предыдущие версии</h2>
-    <p v-if="changes.length === 0" class="empty">Изменений пока нет.</p>
+    <p v-if="loading" class="empty" role="status">Обновляем историю…</p>
+    <p v-else-if="changes.length === 0" class="empty">Изменений пока нет.</p>
     <ol v-else class="history-list">
       <li
         v-for="(change, index) in changes"
