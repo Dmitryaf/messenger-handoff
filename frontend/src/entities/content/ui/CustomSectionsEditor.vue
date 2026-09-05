@@ -35,6 +35,7 @@ function add(): void {
         maxlength="40"
         required
       />
+      <p class="counter">{{ section.label.length }} / 40</p>
       <label :for="`section-text-${index}`">Текст для клиента</label>
       <textarea
         :id="`section-text-${index}`"
@@ -43,6 +44,7 @@ function add(): void {
         required
         rows="4"
       />
+      <p class="counter">{{ section.text.length }} / 4000</p>
       <div class="item-actions">
         <button class="danger" type="button" @click="sections.splice(index, 1)">
           Удалить раздел

@@ -1,8 +1,19 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+
+import {
+  formatFaqResponse,
+  normalizeFaqItems,
+} from '@frontend/entities/content/lib/client-response-preview';
 import type { ContentDraft } from '@frontend/entities/content/model/types';
 import SectionVisibilityControl from './SectionVisibilityControl.vue';
 
 const draft = defineModel<ContentDraft>({ required: true });
+const responseLength = computed(() =>
+  draft.value.faq.length > 0
+    ? formatFaqResponse(normalizeFaqItems(draft.value.faq)).length
+    : 0,
+);
 
 function add(): void {
   if (draft.value.faq.length < 20) {
@@ -21,6 +32,13 @@ function add(): void {
       <span>{{ draft.faq.length }} / 20</span>
     </div>
     <p>Вопросы показываются клиенту в этом порядке.</p>
+    <p
+      class="counter"
+      :class="{ 'counter--error': responseLength > 4000 }"
+      aria-live="polite"
+    >
+      Итоговый ответ: {{ responseLength }} / 4000
+    </p>
     <SectionVisibilityControl
       v-model="draft.visibleSections"
       :content-present="draft.faq.length > 0"
@@ -38,6 +56,7 @@ function add(): void {
         maxlength="300"
         required
       />
+      <p class="counter">{{ item.question.length }} / 300</p>
       <label :for="`faq-answer-${index}`">Ответ</label>
       <textarea
         :id="`faq-answer-${index}`"
@@ -46,6 +65,7 @@ function add(): void {
         required
         rows="4"
       />
+      <p class="counter">{{ item.answer.length }} / 3000</p>
       <div class="item-actions">
         <button
           class="danger"

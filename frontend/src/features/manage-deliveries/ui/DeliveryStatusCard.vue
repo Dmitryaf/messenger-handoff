@@ -19,11 +19,13 @@ const summary = computed(() => {
   if (!status.value) {
     return 'Проверяем состояние доставки…';
   }
-  const { failed, pending } = status.value.summary;
+  const { failed, pending, uncertain = 0 } = status.value.summary;
   if (failed === 0 && pending === 0) {
     return 'Все ответы доставлены.';
   }
-  return `Ожидают отправки: ${pending}. Не доставлено: ${failed}.`;
+  const manualCheck =
+    uncertain > 0 ? ` Требуют ручной проверки: ${uncertain}.` : '';
+  return `Ожидают отправки: ${pending}. Не доставлено: ${failed}.${manualCheck}`;
 });
 
 onMounted(() => {
@@ -75,6 +77,7 @@ async function retry(deliveryId: string): Promise<void> {
           <small>Попыток: {{ failure.attempts }}</small>
         </div>
         <button
+          v-if="failure.retryAllowed"
           class="secondary-button"
           :disabled="retryingId !== ''"
           type="button"
@@ -82,6 +85,9 @@ async function retry(deliveryId: string): Promise<void> {
         >
           {{ retryingId === failure.id ? 'Возвращаем…' : 'Повторить' }}
         </button>
+        <span v-else class="status-pill status-pill--attention">
+          Проверить вручную
+        </span>
       </li>
     </ul>
     <button class="secondary-button" :disabled="loading" @click="refresh">

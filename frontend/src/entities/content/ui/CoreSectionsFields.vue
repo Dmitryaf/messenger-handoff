@@ -1,8 +1,29 @@
 <script setup lang="ts">
+import { computed } from 'vue';
+
+import {
+  formatAddressResponse,
+  formatListResponse,
+} from '@frontend/entities/content/lib/client-response-preview';
 import type { ContentDraft } from '@frontend/entities/content/model/types';
 import SectionVisibilityControl from '@frontend/entities/content/ui/SectionVisibilityControl.vue';
 
 const draft = defineModel<ContentDraft>({ required: true });
+const scheduleLength = computed(() =>
+  draft.value.schedule.trim()
+    ? formatListResponse('Расписание', draft.value.schedule).length
+    : 0,
+);
+const pricesLength = computed(() =>
+  draft.value.prices.trim()
+    ? formatListResponse('Цены', draft.value.prices).length
+    : 0,
+);
+const addressLength = computed(() =>
+  draft.value.address.trim()
+    ? formatAddressResponse(draft.value.address).length
+    : 0,
+);
 </script>
 
 <template>
@@ -35,7 +56,9 @@ const draft = defineModel<ContentDraft>({ required: true });
         maxlength="4000"
         rows="5"
       />
-      <p class="counter">{{ draft.schedule.length }} / 4000</p>
+      <p class="counter" :class="{ 'counter--error': scheduleLength > 4000 }">
+        Итоговый ответ: {{ scheduleLength }} / 4000
+      </p>
       <SectionVisibilityControl
         v-model="draft.visibleSections"
         :content-present="Boolean(draft.schedule.trim())"
@@ -63,7 +86,9 @@ const draft = defineModel<ContentDraft>({ required: true });
       </summary>
       <label for="prices">Текст для клиента</label>
       <textarea id="prices" v-model="draft.prices" maxlength="4000" rows="5" />
-      <p class="counter">{{ draft.prices.length }} / 4000</p>
+      <p class="counter" :class="{ 'counter--error': pricesLength > 4000 }">
+        Итоговый ответ: {{ pricesLength }} / 4000
+      </p>
       <SectionVisibilityControl
         v-model="draft.visibleSections"
         :content-present="Boolean(draft.prices.trim())"
@@ -96,7 +121,9 @@ const draft = defineModel<ContentDraft>({ required: true });
         maxlength="4000"
         rows="4"
       />
-      <p class="counter">{{ draft.address.length }} / 4000</p>
+      <p class="counter" :class="{ 'counter--error': addressLength > 4000 }">
+        Итоговый ответ: {{ addressLength }} / 4000
+      </p>
       <SectionVisibilityControl
         v-model="draft.visibleSections"
         :content-present="Boolean(draft.address.trim())"

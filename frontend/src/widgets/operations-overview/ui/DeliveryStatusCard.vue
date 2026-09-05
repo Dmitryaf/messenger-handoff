@@ -37,6 +37,10 @@ const state = computed(() => {
         <dt>Не доставлены</dt>
         <dd>{{ deliveries.failed }}</dd>
       </div>
+      <div v-if="deliveries.uncertain > 0">
+        <dt>Требуют ручной проверки</dt>
+        <dd>{{ deliveries.uncertain }}</dd>
+      </div>
       <div>
         <dt>Обработчик очереди</dt>
         <dd>{{ deliveries.worker.running ? 'Запущен' : 'Остановлен' }}</dd>

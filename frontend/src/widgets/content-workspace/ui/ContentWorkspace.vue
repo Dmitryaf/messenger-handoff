@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 
+import { validateContentDraft } from '@frontend/entities/content/lib/content-validation';
 import SaveBar from '@frontend/features/save-content/ui/SaveBar.vue';
 import ContentSummary from '@frontend/entities/content/ui/ContentSummary.vue';
 import AsyncMessage from '@frontend/shared/ui/AsyncMessage.vue';
@@ -22,6 +23,7 @@ const workspace = useContentWorkspace({
 });
 const activeView = ref<WorkspaceView>('edit');
 const activeSection = ref<EditorSection>('core');
+const validation = computed(() => validateContentDraft(workspace.draft));
 
 onMounted(() => void workspace.load());
 watch(
@@ -99,6 +101,8 @@ watch(workspace.dirty, (dirty) => emit('dirtyChange', dirty), {
       <SaveBar
         :dirty="workspace.dirty.value"
         :saving="workspace.saving.value"
+        :valid="validation.valid"
+        :validation-message="validation.message"
         @save="workspace.save"
       />
       <ContentSummary :content="workspace.draft" />
