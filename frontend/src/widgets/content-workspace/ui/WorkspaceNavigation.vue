@@ -7,6 +7,7 @@ import {
   editorSections,
   workspaceViews,
 } from '@frontend/widgets/content-workspace/model/navigation';
+import AppIcon from '@frontend/shared/ui/AppIcon.vue';
 
 defineProps<{
   activeSection: EditorSection;
@@ -68,38 +69,41 @@ function changeSection(event: Event): void {
     </div>
   </div>
 
-  <nav
-    class="workspace-navigation desktop-workspace-navigation"
-    aria-label="Разделы управления"
-  >
-    <button
-      v-for="view in workspaceViews"
-      :key="view.id"
-      :aria-pressed="activeView === view.id"
-      :class="{ active: activeView === view.id }"
-      class="navigation-button"
-      type="button"
-      @click="$emit('viewChange', view.id)"
-    >
-      {{ view.label }}
-    </button>
-  </nav>
+  <aside class="dashboard-sidebar desktop-workspace-navigation">
+    <nav class="sidebar-group" aria-label="Разделы управления">
+      <p>Работа с информацией</p>
+      <button
+        v-for="view in workspaceViews"
+        :key="view.id"
+        :aria-pressed="activeView === view.id"
+        :class="{ active: activeView === view.id }"
+        class="navigation-button"
+        type="button"
+        @click="$emit('viewChange', view.id)"
+      >
+        <AppIcon :name="view.id" />
+        {{ view.label }}
+      </button>
+    </nav>
 
-  <nav
-    v-if="activeView === 'edit'"
-    class="editor-navigation desktop-editor-navigation"
-    aria-label="Разделы информации"
-  >
-    <button
-      v-for="section in editorSections"
-      :key="section.id"
-      :aria-pressed="activeSection === section.id"
-      :class="{ active: activeSection === section.id }"
-      class="section-button"
-      type="button"
-      @click="$emit('sectionChange', section.id)"
+    <nav
+      v-if="activeView === 'edit'"
+      class="sidebar-group"
+      aria-label="Разделы информации"
     >
-      {{ section.label }}
-    </button>
-  </nav>
+      <p>Разделы</p>
+      <button
+        v-for="section in editorSections"
+        :key="section.id"
+        :aria-pressed="activeSection === section.id"
+        :class="{ active: activeSection === section.id }"
+        class="section-button"
+        type="button"
+        @click="$emit('sectionChange', section.id)"
+      >
+        <AppIcon :name="section.id" />
+        {{ section.label }}
+      </button>
+    </nav>
+  </aside>
 </template>

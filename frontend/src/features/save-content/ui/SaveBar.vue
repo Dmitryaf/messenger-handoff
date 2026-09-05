@@ -5,9 +5,12 @@ defineEmits<{ save: [] }>();
 
 <template>
   <div class="save-bar">
-    <p :class="{ changed: dirty }" role="status">
-      {{ dirty ? 'Есть несохранённые изменения' : 'Все изменения сохранены' }}
-    </p>
+    <div>
+      <span class="save-bar-label">Публикация</span>
+      <p :class="{ changed: dirty }" role="status">
+        {{ dirty ? 'Есть несохранённые изменения' : 'Все изменения сохранены' }}
+      </p>
+    </div>
     <button :disabled="saving || !dirty" type="button" @click="$emit('save')">
       {{ saving ? 'Сохраняем…' : 'Сохранить' }}
     </button>

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { ContentDraft } from '@frontend/entities/content/model/types';
-import { moveItem } from '@frontend/shared/lib/move-item';
 import SectionVisibilityControl from './SectionVisibilityControl.vue';
 
 const draft = defineModel<ContentDraft>({ required: true });
@@ -48,20 +47,6 @@ function add(): void {
         rows="4"
       />
       <div class="item-actions">
-        <button
-          :disabled="index === 0"
-          type="button"
-          @click="moveItem(draft.faq, index, -1)"
-        >
-          Выше
-        </button>
-        <button
-          :disabled="index === draft.faq.length - 1"
-          type="button"
-          @click="moveItem(draft.faq, index, 1)"
-        >
-          Ниже
-        </button>
         <button
           class="danger"
           type="button"

@@ -82,7 +82,7 @@ function stopAutomaticRefresh(): void {
       </div>
     </section>
 
-    <template v-else>
+    <section v-else class="ops-workspace">
       <p v-if="session.error.value" class="message message--error" role="alert">
         {{ session.error.value }}
       </p>
@@ -113,6 +113,6 @@ function stopAutomaticRefresh(): void {
       <section v-else class="card loading-card">
         <p>Получаем состояние сервиса…</p>
       </section>
-    </template>
+    </section>
   </main>
 </template>

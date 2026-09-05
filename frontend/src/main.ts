@@ -3,8 +3,12 @@ import { createApp } from 'vue';
 import App from '@frontend/App.vue';
 import '@frontend/app/styles/global.css';
 
-document.title = window.location.pathname.startsWith('/ops')
-  ? 'Состояние сервиса'
-  : 'Информация для клиентов';
+if (window.location.pathname.startsWith('/ops')) {
+  document.title = 'Состояние сервиса';
+} else if (window.location.pathname.startsWith('/setup')) {
+  document.title = 'Настройка сервиса';
+} else {
+  document.title = 'Информация для клиентов';
+}
 
 createApp(App).mount('#app');

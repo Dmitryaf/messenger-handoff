@@ -12,10 +12,21 @@ const draft = defineModel<ContentDraft>({ required: true });
 
     <details class="field-group" open>
       <summary>
-        <strong>Расписание</strong>
-        <small>{{
-          draft.schedule.trim() ? 'Заполнено' : 'Не заполнено'
-        }}</small>
+        <span class="summary-copy">
+          <strong>Расписание</strong>
+          <span class="summary-action summary-action--open">
+            Открыть настройки раздела
+          </span>
+          <span class="summary-action summary-action--close">
+            Скрыть настройки раздела
+          </span>
+        </span>
+        <span class="summary-meta">
+          <small>{{
+            draft.schedule.trim() ? 'Заполнено' : 'Не заполнено'
+          }}</small>
+          <span class="disclosure-chevron" aria-hidden="true" />
+        </span>
       </summary>
       <label for="schedule">Текст для клиента</label>
       <textarea
@@ -34,8 +45,21 @@ const draft = defineModel<ContentDraft>({ required: true });
 
     <details class="field-group">
       <summary>
-        <strong>Цены</strong>
-        <small>{{ draft.prices.trim() ? 'Заполнено' : 'Не заполнено' }}</small>
+        <span class="summary-copy">
+          <strong>Цены</strong>
+          <span class="summary-action summary-action--open">
+            Открыть настройки раздела
+          </span>
+          <span class="summary-action summary-action--close">
+            Скрыть настройки раздела
+          </span>
+        </span>
+        <span class="summary-meta">
+          <small>{{
+            draft.prices.trim() ? 'Заполнено' : 'Не заполнено'
+          }}</small>
+          <span class="disclosure-chevron" aria-hidden="true" />
+        </span>
       </summary>
       <label for="prices">Текст для клиента</label>
       <textarea id="prices" v-model="draft.prices" maxlength="4000" rows="5" />
@@ -49,8 +73,21 @@ const draft = defineModel<ContentDraft>({ required: true });
 
     <details class="field-group">
       <summary>
-        <strong>Адрес</strong>
-        <small>{{ draft.address.trim() ? 'Заполнено' : 'Не заполнено' }}</small>
+        <span class="summary-copy">
+          <strong>Адрес</strong>
+          <span class="summary-action summary-action--open">
+            Открыть настройки раздела
+          </span>
+          <span class="summary-action summary-action--close">
+            Скрыть настройки раздела
+          </span>
+        </span>
+        <span class="summary-meta">
+          <small>{{
+            draft.address.trim() ? 'Заполнено' : 'Не заполнено'
+          }}</small>
+          <span class="disclosure-chevron" aria-hidden="true" />
+        </span>
       </summary>
       <label for="address">Текст для клиента</label>
       <textarea

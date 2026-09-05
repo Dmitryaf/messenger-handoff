@@ -15,6 +15,11 @@ const config: RuntimeConfig = {
 };
 
 const apps = new Set<ReturnType<typeof createApp>>();
+const setupAssets = {
+  html: '<div id="app">Подключение Telegram Доставка ответов Резервная копия</div>',
+  script: 'globalThis.setup = true;',
+  styles: ':root { color: black; }',
+};
 
 afterEach(async () => {
   await Promise.all([...apps].map(async (app) => app.close()));
@@ -109,6 +114,10 @@ describe('HTTP service status', () => {
         },
         'none',
       ),
+      undefined,
+      undefined,
+      undefined,
+      { assets: setupAssets, enabled: true },
     );
 
     const local = await app.inject({ method: 'GET', url: '/setup' });

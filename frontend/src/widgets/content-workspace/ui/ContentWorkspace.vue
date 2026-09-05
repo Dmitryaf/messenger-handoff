@@ -2,7 +2,9 @@
 import { onMounted, ref, watch } from 'vue';
 
 import SaveBar from '@frontend/features/save-content/ui/SaveBar.vue';
+import ContentSummary from '@frontend/entities/content/ui/ContentSummary.vue';
 import AsyncMessage from '@frontend/shared/ui/AsyncMessage.vue';
+import AppIcon from '@frontend/shared/ui/AppIcon.vue';
 import ChangeHistory from '@frontend/widgets/change-history/ui/ChangeHistory.vue';
 import ContentEditor from '@frontend/widgets/content-editor/ui/ContentEditor.vue';
 import ContentPreview from '@frontend/widgets/content-preview/ui/ContentPreview.vue';
@@ -37,6 +39,20 @@ watch(workspace.dirty, (dirty) => emit('dirtyChange', dirty), {
     class="workspace"
     :class="{ 'workspace--editing': activeView === 'edit' }"
   >
+    <header class="workspace-topbar">
+      <div class="workspace-identity">
+        <span class="workspace-mark"><AppIcon name="channel" /></span>
+        <div>
+          <strong>Messenger Handoff</strong>
+          <small>Информация для клиентов</small>
+        </div>
+      </div>
+      <span class="channel-badge">
+        <span aria-hidden="true" />
+        Telegram и VK
+      </span>
+    </header>
+
     <WorkspaceNavigation
       :active-section="activeSection"
       :active-view="activeView"
@@ -63,10 +79,13 @@ watch(workspace.dirty, (dirty) => emit('dirtyChange', dirty), {
       />
     </main>
 
-    <SaveBar
-      :dirty="workspace.dirty.value"
-      :saving="workspace.saving.value"
-      @save="workspace.save"
-    />
+    <aside class="workspace-rail">
+      <SaveBar
+        :dirty="workspace.dirty.value"
+        :saving="workspace.saving.value"
+        @save="workspace.save"
+      />
+      <ContentSummary :content="workspace.draft" />
+    </aside>
   </div>
 </template>
